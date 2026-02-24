@@ -1,6 +1,5 @@
 import * as fontkit from 'fontkit';
 import assert from 'assert';
-import fs from 'fs';
 
 describe('glyphs', function () {
   describe('truetype glyphs', function () {
@@ -364,11 +363,8 @@ describe('glyphs', function () {
     });
   });
 
-  const notoEmojiPath = new URL('data/NotoColorEmoji/NotoColorEmoji.ttf', import.meta.url);
-  const hasNotoEmoji = fs.existsSync(notoEmojiPath);
-  const describeIfFont = hasNotoEmoji ? describe : describe.skip;
-
-  describeIfFont('CBDT glyphs', function () {
+  describe('CBDT glyphs', function () {
+    let notoEmojiPath = new URL('data/NotoColorEmoji/NotoColorEmoji.ttf', import.meta.url);
     let font = fontkit.openSync(notoEmojiPath);
 
     it('should get a CBDTGlyph', function () {
