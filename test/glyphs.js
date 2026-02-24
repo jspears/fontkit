@@ -1,5 +1,6 @@
 import * as fontkit from 'fontkit';
 import assert from 'assert';
+import fs from 'fs';
 
 describe('glyphs', function () {
   describe('truetype glyphs', function () {
@@ -360,6 +361,42 @@ describe('glyphs', function () {
       assert.equal(glyph.bbox.minY, 0);
       assert.equal(glyph.bbox.maxX, 564);
       assert.equal(glyph.bbox.maxY, 656);
+    });
+  });
+
+  const notoEmojiPath = new URL('data/NotoColorEmoji/NotoColorEmoji.ttf', import.meta.url);
+  const hasNotoEmoji = fs.existsSync(notoEmojiPath);
+  const describeIfFont = hasNotoEmoji ? describe : describe.skip;
+
+  describeIfFont('CBDT glyphs', function () {
+    let font = fontkit.openSync(notoEmojiPath);
+
+    it('should get a CBDTGlyph', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'CBDT');
+    });
+
+    it('should not crash on layout', function () {
+      assert.doesNotThrow(() => {
+        font.layout('😀');
+      });
+    });
+
+    it('should have an empty path', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      let svg = glyph.path.toSVG();
+      assert.ok(svg.length <= 20, 'Expected minimal/empty path, got: ' + svg);
+    });
+
+    it('should have valid advance width', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.ok(glyph.advanceWidth > 0, 'Expected positive advance width');
+    });
+
+    it('should get glyph by ID', function () {
+      let glyphId = font._cmapProcessor.lookup(0x1F600);
+      let glyph = font.getGlyph(glyphId);
+      assert.ok(glyph !== null, 'Expected non-null glyph for ID ' + glyphId);
     });
   });
 });
