@@ -395,4 +395,109 @@ describe('glyphs', function () {
       assert.ok(glyph !== null, 'Expected non-null glyph for ID ' + glyphId);
     });
   });
+
+  describe('CBDT glyphs (OpenMoji)', function () {
+    let font = fontkit.openSync(new URL('data/OpenMoji/OpenMoji-color-cbdt.ttf', import.meta.url));
+
+    it('should get a CBDTGlyph', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'CBDT');
+    });
+
+    it('should not crash on layout', function () {
+      assert.doesNotThrow(() => {
+        font.layout('😀');
+      });
+    });
+
+    it('should handle ZWJ sequences', function () {
+      let run = font.layout('👨‍👩‍👧‍👦');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for ZWJ family');
+    });
+
+    it('should handle skin tone modifiers', function () {
+      let run = font.layout('👋🏽');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for skin tone emoji');
+    });
+
+    it('should handle flag sequences', function () {
+      let run = font.layout('🇺🇸');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for flag');
+    });
+  });
+
+  describe('COLR glyphs (Twemoji)', function () {
+    let font = fontkit.openSync(new URL('data/Twemoji/Twemoji.Mozilla.ttf', import.meta.url));
+
+    it('should get a COLRGlyph', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'COLR');
+    });
+
+    it('should not crash on layout', function () {
+      assert.doesNotThrow(() => {
+        font.layout('😀');
+      });
+    });
+
+    it('should have valid advance width', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.ok(glyph.advanceWidth > 0, 'Expected positive advance width');
+    });
+
+    it('should handle ZWJ sequences', function () {
+      let run = font.layout('👨‍👩‍👧‍👦');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for ZWJ family');
+    });
+
+    it('should handle skin tone modifiers', function () {
+      let run = font.layout('👋🏽');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for skin tone emoji');
+    });
+
+    it('should handle flag sequences', function () {
+      let run = font.layout('🇺🇸');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for flag');
+    });
+  });
+
+  describe('COLR glyphs (OpenMoji COLRv1+SVG)', function () {
+    let font = fontkit.openSync(new URL('data/OpenMoji/OpenMoji-color-colr1_svg.ttf', import.meta.url));
+
+    it('should get a COLRGlyph', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'COLR');
+    });
+
+    it('should not crash on layout', function () {
+      assert.doesNotThrow(() => {
+        font.layout('😀');
+      });
+    });
+
+    it('should handle ZWJ sequences', function () {
+      let run = font.layout('👨‍👩‍👧‍👦');
+      assert.ok(run.glyphs.length >= 1, 'Expected at least 1 glyph for ZWJ family');
+    });
+  });
+
+  describe('SBIX glyphs (Apple emoji)', function () {
+    let font = fontkit.openSync(new URL('data/ss-emoji/ss-emoji-apple.ttf', import.meta.url));
+
+    it('should get a SBIXGlyph', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'SBIX');
+    });
+
+    it('should not crash on layout', function () {
+      assert.doesNotThrow(() => {
+        font.layout('😀');
+      });
+    });
+
+    it('should have valid advance width', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.ok(glyph.advanceWidth > 0, 'Expected positive advance width');
+    });
+  });
 });
