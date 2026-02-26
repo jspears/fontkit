@@ -481,6 +481,59 @@ describe('glyphs', function () {
     });
   });
 
+  describe('COLR v1 glyphs — null baseGlyphRecord (OpenMoji COLRv1)', function () {
+    let font = fontkit.openSync(new URL('data/OpenMoji/OpenMoji-color-colr1_svg.ttf', import.meta.url));
+
+    it('should return null layers for COLR v1 glyphs (no v0 baseGlyphRecord)', function () {
+      // COLR v1 uses paint-based records; fontkit only supports v0.
+      // The layers getter must return null instead of crashing with:
+      //   TypeError: Cannot read properties of null (reading 'length')
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'COLR');
+      assert.equal(glyph.layers, null);
+    });
+
+    it('should not crash when accessing path on COLR v1 glyph', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      // Accessing .path triggers _getContours internally
+      assert.doesNotThrow(() => {
+        let path = glyph.path;
+      });
+    });
+  });
+
+  describe('COLR v0 glyphs — composite glyph _getContours (OpenMoji COLRv0)', function () {
+    let font = fontkit.openSync(new URL('data/OpenMoji/OpenMoji-color-glyf_colr_0.ttf', import.meta.url));
+
+    it('should get COLR type glyph with layers', function () {
+      let glyph = font.glyphsForString('😀')[0];
+      assert.equal(glyph.type, 'COLR');
+      assert.ok(glyph.layers != null, 'Expected non-null layers for COLR v0');
+      assert.ok(glyph.layers.length > 0, 'Expected at least 1 layer');
+    });
+
+    it('should not crash on layout (composite glyph resolution)', function () {
+      // OpenMoji COLR v0 has composite TTF glyphs whose components may
+      // reference glyph IDs that getGlyph() resolves as COLRGlyph.
+      // COLRGlyph has no _getContours(), so composite resolution
+      // must fall back to _getBaseGlyph() or skip gracefully.
+      // Without the fix this throws:
+      //   TypeError: this._font.getGlyph(...)._getContours is not a function
+      assert.doesNotThrow(() => {
+        font.layout('😀🚀✅👨‍👩‍👧‍👦');
+      });
+    });
+
+    it('should render path without crashing', function () {
+      let run = font.layout('😀');
+      for (let glyph of run.glyphs) {
+        assert.doesNotThrow(() => {
+          glyph.path;
+        });
+      }
+    });
+  });
+
   describe('SBIX glyphs (Apple emoji)', function () {
     let font = fontkit.openSync(new URL('data/ss-emoji/ss-emoji-apple.ttf', import.meta.url));
 
